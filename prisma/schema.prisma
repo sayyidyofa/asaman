@@ -1,0 +1,234 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  email    String
+  password String
+  resetKey String?
+  role     Role      @relation(fields: [roleId], references: [id])
+  roleId   Int
+  logs     Event[]
+  Payment  Payment[]
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  name  String
+  users User[] @relation
+}
+
+model Permission {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+}
+
+model Event {
+  id       Int            @id @default(autoincrement())
+  type     EventType
+  target   EventModelType
+  targetId Int
+  actor    User           @relation(fields: [userId], references: [id])
+  userId   Int
+  time     DateTime
+}
+
+enum EventType {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum EventModelType {
+  USER
+  EMPLOYEE
+  ATTENDANCE
+  WELDING
+  OVERTIME
+  DELIVERY
+  KASBON
+  SALARY
+  CUSTOMER
+  FAKTUR
+  PAYMENT
+}
+
+model Customer {
+  id      Int      @id @default(autoincrement())
+  name    String
+  address String
+  contact String?
+  Order  Order[]
+}
+
+model ProductCategory {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  Products    Product[]
+}
+
+model Product {
+  id                Int             @id @default(autoincrement())
+  name              String
+  rate              Int
+  category          ProductCategory @relation(fields: [productCategoryId], references: [id])
+  productCategoryId Int
+  Weldings          Welding[]
+}
+
+model Order {
+  id      Int        @id
+  tanggal    DateTime   @db.Date
+  tagihan    Int
+  modifier   Int
+  Payment    Payment[]
+  Delivery   Delivery[]
+  Customer   Customer   @relation(fields: [customerId], references: [id])
+  customerId Int
+}
+
+model Cart {
+  id      Int        @id
+  
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  faktur      Order   @relation(fields: [fakturNomor], references: [id])
+  fakturNomor Int
+  nthPayment  Int      @db.SmallInt
+  nominal     Int
+  date        DateTime @db.Date
+  holder      User     @relation(fields: [userId], references: [id])
+  userId      Int
+  keterangan  String?
+}
+
+enum PaymentType {
+  KONTAN
+  BARU
+  LANJUTAN
+  DP
+}
+
+model Department {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  salaryValue Int
+  Employees   Employee[]
+}
+
+model Employee {
+  id             Int            @id @default(autoincrement())
+  name           String
+  department     Department     @relation(fields: [departmentId], references: [id])
+  rank           String?
+  salaryOverride Int
+  salaries       Salary[]       @relation
+  attendances    Attendance[]   @relation
+  DeliveryCrews  DeliveryCrew[]
+  Kasbons        Kasbon[]
+  Weldings       Welding[]
+  Overtimes      Overtime[]
+  departmentId   Int
+}
+
+model Attendance {
+  id         Int      @id @default(autoincrement())
+  date       DateTime @db.Date
+  status     Status
+  keterangan String?
+  Employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+}
+
+enum Status {
+  HADIR
+  IZIN
+  ALFA
+}
+
+model Salary {
+  id         Int      @id @default(autoincrement())
+  from       DateTime
+  to         DateTime
+  nominal    Int
+  markup     Int
+  keterangan String?
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+}
+
+model Welding {
+  id         Int      @id @default(autoincrement())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  product    Product  @relation(fields: [productId], references: [id])
+  employeeId Int
+  productId  Int
+  weight     Float
+  count      Int
+}
+
+model Overtime {
+  id         Int      @id @default(autoincrement())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId Int
+  date       DateTime @db.Date
+  start      DateTime @db.Time
+  end        DateTime @db.Time
+}
+
+model Delivery {
+  id           Int                  @id @default(autoincrement())
+  date         DateTime
+  distance     DeliveryDistanceType
+  weight       DeliveryWeightType
+  DeliveryCrew DeliveryCrew[]
+  faktur       Order               @relation(fields: [fakturNomor], references: [id])
+  fakturNomor  Int
+}
+
+enum DeliveryDistanceType {
+  NEAR
+  FAR
+}
+
+enum DeliveryWeightType {
+  ORDINARY
+  HEAVY
+}
+
+model DeliveryCrew {
+  id         Int              @id @default(autoincrement())
+  employee   Employee         @relation(fields: [employeeId], references: [id])
+  delivery   Delivery         @relation(fields: [deliveryId], references: [id])
+  employeeId Int
+  deliveryId Int
+  role       DeliveryCrewRole
+}
+
+enum DeliveryCrewRole {
+  DRIVER
+  UNLOADER
+}
+
+model Kasbon {
+  id         Int      @id @default(autoincrement())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  nominal    Int
+  start      DateTime @db.Date
+  end        DateTime @db.Date
+  employeeId Int
+}
