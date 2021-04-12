@@ -18,7 +18,7 @@ model User {
   role     Role      @relation(fields: [roleId], references: [id])
   roleId   Int
   logs     Event[]
-  Payment  Payment[]
+  payments  Payment[]
 }
 
 model Role {
@@ -59,23 +59,23 @@ enum EventModelType {
   KASBON
   SALARY
   CUSTOMER
-  FAKTUR
+  ORDER
   PAYMENT
 }
 
 model Customer {
-  id      Int      @id @default(autoincrement())
+  id      Int     @id @default(autoincrement())
   name    String
   address String
   contact String?
-  Order  Order[]
+  orders   Order[]
 }
 
 model ProductCategory {
   id          Int       @id @default(autoincrement())
   name        String
   description String?
-  Products    Product[]
+  products    Product[]
 }
 
 model Product {
@@ -84,35 +84,42 @@ model Product {
   rate              Int
   category          ProductCategory @relation(fields: [productCategoryId], references: [id])
   productCategoryId Int
-  Weldings          Welding[]
+  weldings          Welding[]
+  carts              Cart[]
 }
 
 model Order {
-  id      Int        @id
+  id         Int        @id
   tanggal    DateTime   @db.Date
   tagihan    Int
   modifier   Int
-  Payment    Payment[]
-  Delivery   Delivery[]
-  Customer   Customer   @relation(fields: [customerId], references: [id])
+  payments    Payment[]
+  deliveries   Delivery[]
+  customer   Customer   @relation(fields: [customerId], references: [id])
   customerId Int
+  cart       Cart[]
 }
 
 model Cart {
-  id      Int        @id
-  
+  id        Int     @id
+  product   Product @relation(fields: [productId], references: [id])
+  weight    Float
+  count     Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  orderId   Int
 }
 
 model Payment {
-  id          Int      @id @default(autoincrement())
-  faktur      Order   @relation(fields: [fakturNomor], references: [id])
-  fakturNomor Int
-  nthPayment  Int      @db.SmallInt
-  nominal     Int
-  date        DateTime @db.Date
-  holder      User     @relation(fields: [userId], references: [id])
-  userId      Int
-  keterangan  String?
+  id         Int      @id @default(autoincrement())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    Int
+  nthPayment Int      @db.SmallInt
+  nominal    Int
+  date       DateTime @db.Date
+  holder     User     @relation(fields: [userId], references: [id])
+  userId     Int
+  keterangan String?
 }
 
 enum PaymentType {
@@ -127,7 +134,7 @@ model Department {
   name        String
   description String?
   salaryValue Int
-  Employees   Employee[]
+  employees   Employee[]
 }
 
 model Employee {
@@ -138,10 +145,10 @@ model Employee {
   salaryOverride Int
   salaries       Salary[]       @relation
   attendances    Attendance[]   @relation
-  DeliveryCrews  DeliveryCrew[]
-  Kasbons        Kasbon[]
-  Weldings       Welding[]
-  Overtimes      Overtime[]
+  deliveryCrews  DeliveryCrew[]
+  kasbons        Kasbon[]
+  weldings       Welding[]
+  overtimes      Overtime[]
   departmentId   Int
 }
 
@@ -150,7 +157,7 @@ model Attendance {
   date       DateTime @db.Date
   status     Status
   keterangan String?
-  Employee   Employee @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id])
   employeeId Int
 }
 
@@ -195,9 +202,9 @@ model Delivery {
   date         DateTime
   distance     DeliveryDistanceType
   weight       DeliveryWeightType
-  DeliveryCrew DeliveryCrew[]
-  faktur       Order               @relation(fields: [fakturNomor], references: [id])
-  fakturNomor  Int
+  deliveryCrew DeliveryCrew[]
+  order        Order                @relation(fields: [orderId], references: [id])
+  orderId      Int
 }
 
 enum DeliveryDistanceType {
