@@ -21,6 +21,7 @@
   "dependencies": {
     "@nestjs/common": "^7.6.15",
     "@nestjs/core": "^7.6.15",
+    "@nestjs/graphql": "^7.10.3",
     "@nestjs/platform-express": "^7.6.15",
     "cloudinary": "^1.25.1",
     "exceljs": "^4.2.1",
