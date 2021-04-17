@@ -25,6 +25,7 @@
     "@nestjs/platform-express": "^7.6.15",
     "cloudinary": "^1.25.1",
     "exceljs": "^4.2.1",
+    "graphql": "^15.5.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.6"
