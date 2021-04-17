@@ -104,7 +104,7 @@ model Cart {
   id        Int     @id
   product   Product @relation(fields: [productId], references: [id])
   weight    Float
-  count     Int
+  amount     Int
   order     Order   @relation(fields: [orderId], references: [id])
   productId Int
   orderId   Int
@@ -185,7 +185,7 @@ model Welding {
   employeeId Int
   productId  Int
   weight     Float
-  count      Int
+  amount      Int
 }
 
 model Overtime {
